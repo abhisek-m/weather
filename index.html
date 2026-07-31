@@ -179,18 +179,6 @@
 <div id="snow"></div>
 <div id="clouds"></div>
 
-<div id="keyModal">
-  <div class="glass card">
-    <h2>Connect Skyglass</h2>
-    <p>Enter a free OpenWeatherMap API key to pull live conditions. Get one at
-      <a href="https://openweathermap.org/api" target="_blank" style="color:var(--accent-sky)">openweathermap.org/api</a> —
-      it's free and activates within an hour or two of signup.</p>
-    <input id="keyInput" type="text" placeholder="Paste your API key" autocomplete="off">
-    <button id="keySubmit">Continue</button>
-    <span class="hint">Kept only in this browser tab — nothing is stored or sent anywhere else.</span>
-  </div>
-</div>
-
 <div class="wrap" id="app" style="display:none;">
   <div class="brand">
     <h1>Sky<span>glass</span></h1>
@@ -212,23 +200,13 @@
 
 <script>
 const OWM = 'https://api.openweathermap.org/data/2.5';
-let apiKey = null;
+const apiKey = '4581406cc70e0d3a18ca3d0b7f4e49f4';
 
-const keyModal = document.getElementById('keyModal');
 const app = document.getElementById('app');
 const content = document.getElementById('content');
 
-document.getElementById('keySubmit').addEventListener('click', submitKey);
-document.getElementById('keyInput').addEventListener('keydown', e => { if(e.key==='Enter') submitKey(); });
-
-function submitKey(){
-  const val = document.getElementById('keyInput').value.trim();
-  if(!val){ return; }
-  apiKey = val;
-  keyModal.style.display = 'none';
-  app.style.display = 'flex';
-  locate();
-}
+app.style.display = 'flex';
+locate();
 
 document.getElementById('cityInput').addEventListener('keydown', e => {
   if(e.key === 'Enter' && e.target.value.trim()){
