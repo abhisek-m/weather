@@ -261,18 +261,41 @@ function renderError(err){
 }
 function escapeHtml(s){ return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+let clockTimer = null;
+let placeUtcOffset = 0;
+
+function placeNow(){
+  const utcMs = Date.now() + (new Date().getTimezoneOffset() * 60000);
+  return new Date(utcMs + placeUtcOffset * 1000);
+}
+function formatPlaceTime(d){
+  return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+function formatPlaceDate(d){
+  return d.toLocaleDateString(undefined, {weekday:'long', month:'short', day:'numeric'});
+}
+function startClock(){
+  if(clockTimer) clearInterval(clockTimer);
+  clockTimer = setInterval(() => {
+    const el = document.getElementById('placeClock');
+    if(el) el.textContent = formatPlaceTime(placeNow());
+  }, 1000);
+}
+
 function render(cur, fc){
   const main = cur.weather[0].main.toLowerCase();
   const isNight = isNightTime(cur.dt, cur.sys.sunrise, cur.sys.sunset);
   applySky(main, isNight);
 
+  placeUtcOffset = cur.timezone;
   const dailies = pickDailies(fc.list);
+  const nowAtPlace = placeNow();
 
   content.innerHTML = `
     <div class="glass hero">
       <div class="hero-top">
         <div class="place">${cur.name}, ${cur.sys.country}
-          <span class="sub">${new Date().toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'})}</span>
+          <span class="sub">${formatPlaceDate(nowAtPlace)} · <span id="placeClock">${formatPlaceTime(nowAtPlace)}</span></span>
         </div>
         <div class="updated">updated ${new Date(cur.dt*1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
       </div>
@@ -304,6 +327,7 @@ function render(cur, fc){
       `).join('')}
     </div>
   `;
+  startClock();
 }
 
 function pickDailies(list){
